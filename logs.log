@@ -1,4 +1,26 @@
-2025-07-13 22:57:34,881 Parsing https://dev.iridi.com/JS_Handbook#%D0%A1%D0%B5%D1%80%D0%B2%D0%B5%D1%80%D0%BD%D1%8B%D0%B9_API
-2025-07-13 22:57:36,612 Название файла Справочник JavaScript API
-2025-07-13 22:57:36,612 Название файла Справочник_JavaScript_API
-2025-07-13 22:57:36,619 Успешно спарсил Справочник_JavaScript_API
+2025-07-14 00:59:10,683 INFO: Parsing https://dev.iridi.com/IRidium_studio_2019_Navigation
+2025-07-14 00:59:15,007 INFO: Успешно спарсил IRidium_studio_2019_Navigation
+2025-07-14 00:59:15,007 INFO: Parsing https://dev.iridi.com/IRidium_studio_2019_Item_States
+2025-07-14 00:59:20,863 INFO: Успешно спарсил IRidium_studio_2019_Item_States
+2025-07-14 00:59:20,863 INFO: Parsing https://dev.iridi.com/IRidium_studio_2019_Programming
+2025-07-14 00:59:23,583 INFO: Успешно спарсил IRidium_studio_2019_Programming
+2025-07-14 00:59:23,583 INFO: Parsing https://dev.iridi.com/IRidium_studio_2019_UI_Relations
+2025-07-14 00:59:25,951 INFO: Успешно спарсил IRidium_studio_2019_UI_Relations
+2025-07-14 00:59:25,951 INFO: Parsing https://dev.iridi.com/IRidium_studio_2019_Animation
+2025-07-14 00:59:29,848 INFO: Успешно спарсил IRidium_studio_2019_Animation
+2025-07-14 00:59:29,848 INFO: Parsing https://dev.iridi.com/IRidium_studio_2019_Lists
+2025-07-14 00:59:33,007 INFO: Успешно спарсил IRidium_studio_2019_Lists
+2025-07-14 00:59:33,008 INFO: Parsing https://dev.iridi.com/IRidium_studio_2019_Sounds
+2025-07-14 00:59:35,342 INFO: Успешно спарсил IRidium_studio_2019_Sounds
+2025-07-14 00:59:35,342 INFO: Parsing https://dev.iridi.com/IRidium_studio_2019_Trends
+2025-07-14 00:59:39,649 INFO: Успешно спарсил IRidium_studio_2019_Trends
+2025-07-14 00:59:39,649 INFO: Parsing https://dev.iridi.com/Blur_effect
+2025-07-14 00:59:42,451 INFO: Успешно спарсил Blur_effect
+2025-07-14 00:59:42,451 INFO: Parsing https://dev.iridi.com/Text_transform
+2025-07-14 00:59:45,221 INFO: Успешно спарсил Text_transform
+2025-07-14 00:59:45,222 INFO: Parsing https://dev.iridi.com/IRidium_studio_2019_Native_Drivers
+2025-07-14 00:59:47,953 INFO: Успешно спарсил IRidium_studio_2019_Native_Drivers
+2025-07-14 00:59:47,953 INFO: Parsing https://dev.iridi.com/IRidium_studio_2019_Import_Data
+2025-07-14 00:59:52,261 INFO: Успешно спарсил IRidium_studio_2019_Import_Data
+2025-07-14 00:59:52,261 INFO: Parsing https://dev.iridi.com/IRidium_studio_2019_Command_Sending
+2025-07-14 00:59:54,895 INFO: Успешно спарсил IRidium_studio_2019_Command_Sending
