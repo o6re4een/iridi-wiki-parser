@@ -82,3 +82,9 @@ def sanitize_filename(filename, replace_spaces=True):
 
     # Максимальная длина для Windows (255 символов)
     return cleaned[:255]
+
+
+def clean_pp_limit(text: str):
+    regex = re.compile(r"(NewPP).*$", flags=re.MULTILINE | re.DOTALL)
+    text = re.sub(regex, "", text)
+    return text

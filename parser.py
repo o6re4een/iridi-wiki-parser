@@ -8,7 +8,7 @@ import logging
 
 from helpers.download_img import download_img
 from helpers.CONSTANTS import SAVE_DIR_PATH, SOURCE_URL, DOCUS_IMAGE_BASE_PATH
-from helpers.strs import replace_multiple_newlines, escape_markdown
+from helpers.strs import clean_pp_limit, replace_multiple_newlines, escape_markdown
 
 
 FORMAT = "%(asctime)s %(message)s"
@@ -163,8 +163,8 @@ def convert_span(node: Tag):
         # print(f"Node {node}\n Parent {node.parent}\n")
         if node.parent.name == "span":
             # print(node.parent)
-            return ":::warning\n" + convert_children(node)
-        return ":::info\n" + convert_children(node)
+            return ":::warning\n"
+        return ":::note\n"
 
     if node.parent.parent.name == "td":
         return "\nℹ️ " + convert_children(node)
@@ -378,11 +378,15 @@ def parse_single(link: str):
     cookies = {
         "irmob_wiki3language": "ru",
     }
-    html = requests.get(link, timeout=2, headers=headers, cookies=cookies).content
+    html = None
+    sessions = requests.Session()
+    with sessions as ses:
+        html = ses.get(link, headers=headers, cookies=cookies, timeout=100).content
+
     # with open("input.html", "r", encoding="utf-8") as f:
     #     html = f.read()
     markdown = html_to_markdown(html)
-    final = replace_multiple_newlines(markdown)
+    final = clean_pp_limit(replace_multiple_newlines(markdown))
     if PAGE_NAME:
         os.makedirs(f"{SAVE_DIR_PATH}{PAGE_NAME}", exist_ok=True)
         with open(f"{SAVE_DIR_PATH}{PAGE_NAME}/output.md", "w", encoding="utf-8") as f:
