@@ -1,4 +1,20 @@
-2025-07-13 22:57:34,881 Parsing https://dev.iridi.com/JS_Handbook#%D0%A1%D0%B5%D1%80%D0%B2%D0%B5%D1%80%D0%BD%D1%8B%D0%B9_API
-2025-07-13 22:57:36,612 Название файла Справочник JavaScript API
-2025-07-13 22:57:36,612 Название файла Справочник_JavaScript_API
-2025-07-13 22:57:36,619 Успешно спарсил Справочник_JavaScript_API
+2025-07-14 11:54:20,708 Parsing https://dev.iridi.com/IRidium_studio_2019_JavaScript
+2025-07-14 11:54:21,741 Название файла IRidium_studio_2019_JavaScript
+2025-07-14 11:54:22,474 file_name: Editor_window_JS_Editor.png
+2025-07-14 11:54:22,922 file_name: JSTree.png
+2025-07-14 11:54:23,372 file_name: JSnew.png
+2025-07-14 11:54:23,825 file_name: JSdel.png
+2025-07-14 11:54:24,299 file_name: JSupdown.png
+2025-07-14 11:54:24,771 file_name: JSpass.png
+2025-07-14 11:54:25,249 file_name: JSapply.png
+2025-07-14 11:54:25,711 file_name: JSsavefile.png
+2025-07-14 11:54:26,200 file_name: JSExternal_editor.png
+2025-07-14 11:54:26,657 file_name: JSundoredo.png
+2025-07-14 11:54:27,121 file_name: JSColor.png
+2025-07-14 11:54:27,617 file_name: JShelp.png
+2025-07-14 11:54:28,088 file_name: JSserch.png
+2025-07-14 11:54:28,574 file_name: JS_enable.png
+2025-07-14 11:54:29,044 file_name: JS_disable.png
+2025-07-14 11:54:29,493 file_name: Enter_pass.png
+2025-07-14 11:54:29,950 file_name: Set_pass.png
+2025-07-14 11:54:29,953 Успешно спарсил IRidium_studio_2019_JavaScript
