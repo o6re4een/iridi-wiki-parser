@@ -8,7 +8,7 @@ import logging
 
 from helpers.download_img import download_img
 from helpers.CONSTANTS import SAVE_DIR_PATH, SOURCE_URL, DOCUS_IMAGE_BASE_PATH
-from helpers.strs import replace_multiple_newlines
+from helpers.strs import clean_pp_limit, replace_multiple_newlines, escape_markdown
 
 
 FORMAT = "%(asctime)s %(message)s"
@@ -20,18 +20,6 @@ logger = logging.getLogger(__name__)
 
 PAGE_NAME = None
 IS_SPEC_TAG = False
-
-
-def escape_markdown(text):
-    """
-    Экранирует специальные символы Markdown в тексте
-    """
-    # Список символов, которые нужно экранировать
-    escape_chars = r"\*_{}[]()#+-.!|`~<>"
-    # Экранируем каждый специальный символ
-    for char in escape_chars:
-        text = text.replace(char, "\\" + char)
-    return text
 
 
 def html_to_markdown(html_content):
@@ -92,7 +80,6 @@ def convert_node(node):
         alt = node.get("alt", "")
         title = node.get("title", "")
 
-        logger.info(f"PAGE_NAME in convert_node img {PAGE_NAME}")
         return download_img(src, PAGE_NAME)
 
     # Обработка таблиц
@@ -119,18 +106,18 @@ def convert_node(node):
     if "thumbnail" in class_str:
         main_heading = node.find("h1")
         if main_heading:
-            logger.info(f"Название файла {main_heading.text}")
+            logger.info(f"Название файла {PAGE_NAME}")
 
-            if not PAGE_NAME:
+            # if not PAGE_NAME:
 
-                PAGE_NAME = main_heading.find("span").get("id", "")
-                logger.info(f"Название файла {PAGE_NAME}")
-            if not PAGE_NAME:
-                sys.exit(
-                    f"Ошибка заголовка",
-                )
+            #     PAGE_NAME = main_heading.find("span").get("id", "")
+            #     logger.info(f"Название файла {PAGE_NAME}")
+            # if not PAGE_NAME:
+            #     sys.exit(
+            #         f"Ошибка заголовка",
+            #     )
 
-            return f"---\nid: {main_heading.text}\ntitle: {main_heading.text}\n---\n# {main_heading.text}\n\n"
+            return f"---\nid: {PAGE_NAME}\ntitle: {PAGE_NAME}\n---\n# {main_heading.text}\n\n"
         return convert_thumbnail(node)
 
     # Обработка ссылок
@@ -170,14 +157,17 @@ def convert_span(node: Tag):
     # print(f"Node style: {node_style_attrs}")
     if "label-default" in node_class_str:
         return f"`{node.getText()}` "
-    if "glyphicon" in node_class_str:
+    if "glyphicon" in node_class_str and not node.parent.parent.name == "td":
         global IS_SPEC_TAG
         IS_SPEC_TAG = True
         # print(f"Node {node}\n Parent {node.parent}\n")
         if node.parent.name == "span":
             # print(node.parent)
-            return ":::warning\n" + convert_children(node)
-        return ":::info\n" + convert_children(node)
+            return ":::warning\n"
+        return ":::note\n"
+
+    if node.parent.parent.name == "td":
+        return "\nℹ️ " + convert_children(node)
     # if span_block:
     #     sp_bl_attrs = span_block.get_attribute_list("class")
     #     print(sp_bl_attrs)
@@ -203,14 +193,14 @@ def convert_children(node):
     global IS_SPEC_TAG
     output = ""
     for child in node.children:
-        result = None
-        if IS_SPEC_TAG:
-            result = convert_node(child) + "\n:::\n\n"
-            IS_SPEC_TAG = False
-        else:
-            result = convert_node(child)
+
+        result = convert_node(child)
         if result is not None:
             output += result
+
+    if IS_SPEC_TAG:
+        IS_SPEC_TAG = False
+        return output + "\n:::\n\n"
     return output
 
 
@@ -380,12 +370,23 @@ def parse_many():
 def parse_single(link: str):
     global PAGE_NAME
     PAGE_NAME = None
-    html = requests.get(link).content
+    PAGE_NAME = link.split("/")[-1]
+    headers = {
+        "accept-language": "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7",
+        "Content-Language": "ru",
+    }
+    cookies = {
+        "irmob_wiki3language": "ru",
+    }
+    html = None
+    sessions = requests.Session()
+    with sessions as ses:
+        html = ses.get(link, headers=headers, cookies=cookies, timeout=100).content
+
     # with open("input.html", "r", encoding="utf-8") as f:
     #     html = f.read()
-
     markdown = html_to_markdown(html)
-    final = replace_multiple_newlines(markdown)
+    final = clean_pp_limit(replace_multiple_newlines(markdown))
     if PAGE_NAME:
         os.makedirs(f"{SAVE_DIR_PATH}{PAGE_NAME}", exist_ok=True)
         with open(f"{SAVE_DIR_PATH}{PAGE_NAME}/output.md", "w", encoding="utf-8") as f:

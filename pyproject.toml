@@ -1,5 +1,6 @@
 [project]
 name = "iridi-parser"
+package-mode = false
 version = "0.1.0"
 description = ""
 authors = [
@@ -7,7 +8,7 @@ authors = [
 ]
 license = {text = "MIT"}
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.10"
 dependencies = [
     "requests (>=2.32.4,<3.0.0)",
     "beautifulsoup4 (>=4.13.4,<5.0.0)"
