@@ -9,9 +9,9 @@ import logging
 from helpers.download_img import download_img
 from helpers.CONSTANTS import SAVE_DIR_PATH, SOURCE_URL, DOCUS_IMAGE_BASE_PATH
 from helpers.strs import replace_multiple_newlines
-from helpers.strs import escape_file_name, escape_markdown
 
-FORMAT = "%(asctime)s %(levelname)s: %(message)s"
+
+FORMAT = "%(asctime)s %(message)s"
 logging.basicConfig(
     format=FORMAT, filename="logs.log", level="INFO", encoding="utf-8", filemode="w"
 )
@@ -20,6 +20,18 @@ logger = logging.getLogger(__name__)
 
 PAGE_NAME = None
 IS_SPEC_TAG = False
+
+
+def escape_markdown(text):
+    """
+    Экранирует специальные символы Markdown в тексте
+    """
+    # Список символов, которые нужно экранировать
+    escape_chars = r"\*_{}[]()#+-.!|`~<>"
+    # Экранируем каждый специальный символ
+    for char in escape_chars:
+        text = text.replace(char, "\\" + char)
+    return text
 
 
 def html_to_markdown(html_content):
@@ -80,7 +92,7 @@ def convert_node(node):
         alt = node.get("alt", "")
         title = node.get("title", "")
 
-        # logger.info(f"PAGE_NAME in convert_node img {PAGE_NAME}")
+        logger.info(f"PAGE_NAME in convert_node img {PAGE_NAME}")
         return download_img(src, PAGE_NAME)
 
     # Обработка таблиц
@@ -107,19 +119,18 @@ def convert_node(node):
     if "thumbnail" in class_str:
         main_heading = node.find("h1")
         if main_heading:
-            # logger.info(f"Название файла {main_heading.text}")
+            logger.info(f"Название файла {main_heading.text}")
 
-            # if not PAGE_NAME:
+            if not PAGE_NAME:
 
-            #     PAGE_NAME = main_heading.find("span").get("id", "")
-            #     PAGE_NAME = escape_file_name(PAGE_NAME)
-            #     logger.info(f"Название файла {PAGE_NAME}")
-            # if not PAGE_NAME:
-            #     sys.exit(
-            #         f"Ошибка заголовка",
-            #     )
+                PAGE_NAME = main_heading.find("span").get("id", "")
+                logger.info(f"Название файла {PAGE_NAME}")
+            if not PAGE_NAME:
+                sys.exit(
+                    f"Ошибка заголовка",
+                )
 
-            return f"---\nid: {PAGE_NAME}\ntitle: {escape_file_name(main_heading.text)}\n---\n# {main_heading.text}\n\n"
+            return f"---\nid: {main_heading.text}\ntitle: {main_heading.text}\n---\n# {main_heading.text}\n\n"
         return convert_thumbnail(node)
 
     # Обработка ссылок
@@ -165,8 +176,8 @@ def convert_span(node: Tag):
         # print(f"Node {node}\n Parent {node.parent}\n")
         if node.parent.name == "span":
             # print(node.parent)
-            return "\n:::warning\n"
-        return "\n:::note\n"
+            return ":::warning\n" + convert_children(node)
+        return ":::info\n" + convert_children(node)
     # if span_block:
     #     sp_bl_attrs = span_block.get_attribute_list("class")
     #     print(sp_bl_attrs)
@@ -189,21 +200,17 @@ def convert_p(node: Tag) -> str:
 
 
 def convert_children(node):
-
+    global IS_SPEC_TAG
     output = ""
     for child in node.children:
         result = None
-        # if IS_SPEC_TAG:
-        #     result = convert_node(child) + "\n:::\n\n"
-        #     IS_SPEC_TAG = False
-        # else:
-        result = convert_node(child)
+        if IS_SPEC_TAG:
+            result = convert_node(child) + "\n:::\n\n"
+            IS_SPEC_TAG = False
+        else:
+            result = convert_node(child)
         if result is not None:
             output += result
-    global IS_SPEC_TAG
-    if IS_SPEC_TAG:
-        IS_SPEC_TAG = False
-        return f"{output}\n:::\n\n"
     return output
 
 
@@ -338,14 +345,6 @@ def convert_panel(node: Tag):
 
 
 def convert_alert(node: Tag):
-    node_class_list = node.get("class", []) or []
-    node_class_str = " ".join(node_class_list)
-
-    if "alert-info" in node_class_str:
-        return ":::info\n" + convert_children(node) + "\n:::\n\n"
-    if "alert-success" in node_class_str:
-        return ":::info\n" + convert_children(node) + "\n:::\n\n"
-
     md_text = ":::tip\n"
     md_text += convert_children(node)
     # for child in node.children:
@@ -381,7 +380,6 @@ def parse_many():
 def parse_single(link: str):
     global PAGE_NAME
     PAGE_NAME = None
-    PAGE_NAME = link.split("/")[-1]
     html = requests.get(link).content
     # with open("input.html", "r", encoding="utf-8") as f:
     #     html = f.read()

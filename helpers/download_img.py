@@ -7,7 +7,6 @@ logger = logging.getLogger(__name__)
 
 
 from helpers.CONSTANTS import DOCUS_IMAGE_BASE_PATH, SAVE_DIR_PATH, SOURCE_URL
-from .strs import escape_file_name
 
 
 def download_img(img_src: str, page_name: str) -> str:
@@ -16,12 +15,12 @@ def download_img(img_src: str, page_name: str) -> str:
         #     f"{SOURCE_URL+img_src}" if not img_src.find("/images/") else None
         # )
         download_link = f"{SOURCE_URL+img_src}"
-        # logger.info(f"download_link: {download_link}")
+        logger.info(f"download_link: {download_link}")
         if download_link:
             # print(download_link)
             img = requests.get(download_link)
-            file_name = escape_file_name(img_src.split("/")[-1])
-            # logger.info(f"file_name: {file_name}")
+            file_name = img_src.split("/")[-1]
+            logger.info(f"file_name: {file_name}")
             os.makedirs(f"{SAVE_DIR_PATH}{page_name}", exist_ok=True)
             with open(f"{SAVE_DIR_PATH}{page_name}/{file_name}", "wb") as f:
                 f.write(img.content)

@@ -1,13 +1,1 @@
-https://dev.iridi.com/IRidium_studio_2019_Navigation
-https://dev.iridi.com/IRidium_studio_2019_Item_States
-https://dev.iridi.com/IRidium_studio_2019_Programming
-https://dev.iridi.com/IRidium_studio_2019_UI_Relations
-https://dev.iridi.com/IRidium_studio_2019_Animation
-https://dev.iridi.com/IRidium_studio_2019_Lists
-https://dev.iridi.com/IRidium_studio_2019_Sounds
-https://dev.iridi.com/IRidium_studio_2019_Trends
-https://dev.iridi.com/Blur_effect
-https://dev.iridi.com/Text_transform
-https://dev.iridi.com/IRidium_studio_2019_Native_Drivers
-https://dev.iridi.com/IRidium_studio_2019_Import_Data
-https://dev.iridi.com/IRidium_studio_2019_Command_Sending
+https://dev.iridi.com/JS_Handbook#%D0%A1%D0%B5%D1%80%D0%B2%D0%B5%D1%80%D0%BD%D1%8B%D0%B9_API
