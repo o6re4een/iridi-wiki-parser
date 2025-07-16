@@ -1,7 +1,1 @@
-https://dev.iridi.com/IRidium_studio_2019_Navigation
-https://dev.iridi.com/IRidium_studio_2019_Item_States
-https://dev.iridi.com/IRidium_studio_2019_Programming
-https://dev.iridi.com/IRidium_studio_2019_UI_Relations
-https://dev.iridi.com/IRidium_studio_2019_Animation
-https://dev.iridi.com/IRidium_studio_2019_Lists
-https://dev.iridi.com/IRidium_studio_2019_Sounds
+https://dev.iridi.com/IRidium_studio_2019_Import_Data

@@ -7,14 +7,51 @@ def replace_multiple_newlines(text):
 
 def escape_markdown(text):
     """
-    Экранирует специальные символы Markdown в тексте
+    Избирательно экранирует специальные символы Markdown, сохраняя разметку
     """
-    # Список символов, которые нужно экранировать
-    escape_chars = r"\*_{}[]()#+-.!|`~<>"
-    # Экранируем каждый специальный символ
-    for char in escape_chars:
-        text = text.replace(char, "\\" + char)
-    return text
+    # Символы, которые могут начинать Markdown-конструкции
+    start_chars = r"*_-#+>`[~"
+
+    # Экранируем только если символ:
+    # 1. В начале строки
+    # 2. После пробела
+    # 3. Перед ним нет обратного слеша
+    escaped = []
+    for i, char in enumerate(text):
+        if char in start_chars:
+            # Проверяем контекст символа
+            prev_char = text[i - 1] if i > 0 else " "
+            next_char = text[i + 1] if i < len(text) - 1 else " "
+
+            # Условия, когда нужно экранировать:
+            if (
+                (prev_char in ("\n", " ", "\t") or i == 0)  # Начало строки/слова
+                or (char == ">" and prev_char == "\n")  # Цитаты
+                or (
+                    char == "`" and "`" not in (prev_char, next_char)
+                )  # Одиночные backticks
+            ):
+                # Не экранируем, если это часть корректной разметки
+                if not (
+                    (
+                        char == "*" and next_char == "*" and text[i + 2 : i + 3] != " "
+                    )  # **bold**
+                    or (
+                        char == "_" and next_char == "_" and text[i + 2 : i + 3] != " "
+                    )  # __bold__
+                    or (
+                        char == "~" and next_char == "~" and text[i + 2 : i + 3] != " "
+                    )  # ~~strike~~
+                    or (
+                        char == "[" and next_char == "]" and text[i + 2 : i + 3] == "("
+                    )  # [link]()
+                ):
+                    escaped.append("\\" + char)
+                    continue
+
+        escaped.append(char)
+
+    return "".join(escaped)
 
 
 import re
@@ -43,7 +80,7 @@ def sanitize_filename(filename, replace_spaces=True):
         cleaned = cleaned.replace(" ", "_")
 
     # Список запрещённых символов для файловых систем
-    illegal_chars = r'[<>:"/\\|?*\x00-\x1F]'
+    illegal_chars = r'[<>:"/\\|?*\x00-\x1F]+'
     cleaned = re.sub(illegal_chars, "_", cleaned)
 
     # Удаление двойных подчёркиваний
@@ -88,3 +125,8 @@ def clean_pp_limit(text: str):
     regex = re.compile(r"(NewPP).*$", flags=re.MULTILINE | re.DOTALL)
     text = re.sub(regex, "", text)
     return text
+
+
+# def clear_admonitions(page_text: str) -> str:
+#     first_repl = re.sub("\W")
+#     return first_repl

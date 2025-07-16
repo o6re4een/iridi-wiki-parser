@@ -1,14 +1,21 @@
+import copy
 import os
 import sys
+from typing import List
 from bs4 import BeautifulSoup, Comment
 from bs4.element import NavigableString, Tag, PageElement
 import re
 import requests
 import logging
-
+from requests.adapters import HTTPAdapter
 from helpers.download_img import download_img
 from helpers.CONSTANTS import SAVE_DIR_PATH, SOURCE_URL, DOCUS_IMAGE_BASE_PATH
-from helpers.strs import clean_pp_limit, replace_multiple_newlines, escape_markdown
+from helpers.strs import (
+    clean_pp_limit,
+    replace_multiple_newlines,
+    escape_markdown,
+    sanitize_filename,
+)
 
 
 FORMAT = "%(asctime)s %(message)s"
@@ -20,6 +27,12 @@ logger = logging.getLogger(__name__)
 
 PAGE_NAME = None
 IS_SPEC_TAG = False
+
+
+def get_node_class_str(node: Tag) -> str:
+    cls_list = node.get("class", []) or []
+    cls_str = " ".join(cls_list)
+    return cls_str
 
 
 def html_to_markdown(html_content):
@@ -37,7 +50,20 @@ def convert_node(node):
     global PAGE_NAME
     if isinstance(node, NavigableString):
         text = re.sub(r"\n\s+", " ", node.string.replace("\xa0", " ").strip())
-        text = escape_markdown(text)
+
+        # Проверяем, не находится ли узел внутри блока кода
+        parent = node.parent
+        in_code_block = False
+        while parent:
+            if parent.name in ["pre", "code"]:
+                in_code_block = True
+                break
+            parent = parent.parent
+
+        # Экранируем только вне блоков кода
+        if not in_code_block and text:
+            text = escape_markdown(text)
+
         return text + " " if text else ""
 
     if isinstance(node, Comment):
@@ -52,7 +78,7 @@ def convert_node(node):
 
     # Обработка заголовков
     if node_name in ["h1", "h2", "h3", "h4", "h5", "h6"]:
-        level = int(node_name[1])
+        level = int(node_name[1]) + 1
 
         return f"{'#' * level} {convert_children(node)}\n\n"
 
@@ -67,7 +93,7 @@ def convert_node(node):
     if node_name == "b":
         return f"**{convert_children(node).strip()}** "
     if node_name == "i":
-        return f"*{convert_children(node).strip()}* "
+        return convert_i(node)
 
     # Обработка списков
     if node.name == "ul" or node.name == "ol":
@@ -108,16 +134,7 @@ def convert_node(node):
         if main_heading:
             logger.info(f"Название файла {PAGE_NAME}")
 
-            # if not PAGE_NAME:
-
-            #     PAGE_NAME = main_heading.find("span").get("id", "")
-            #     logger.info(f"Название файла {PAGE_NAME}")
-            # if not PAGE_NAME:
-            #     sys.exit(
-            #         f"Ошибка заголовка",
-            #     )
-
-            return f"---\nid: {PAGE_NAME}\ntitle: {PAGE_NAME}\n---\n# {main_heading.text}\n\n"
+            return f"---\nid: {sanitize_filename(PAGE_NAME)}\ntitle: {PAGE_NAME}\n---\n# {main_heading.text}\n\n"
         return convert_thumbnail(node)
 
     # Обработка ссылок
@@ -128,7 +145,7 @@ def convert_node(node):
             link = href
         else:
             link = SOURCE_URL + href
-        text = convert_children(node)
+        text = convert_children(node).strip()
         return f"[{text}]({link})"
 
     if node_name == "span":
@@ -149,48 +166,66 @@ def convert_node(node):
     return convert_children(node)
 
 
-def convert_span(node: Tag):
-
+def convert_span(node: Tag) -> str:
     node_class_list = node.get("class", []) or []
     node_class_str = " ".join(node_class_list)
-    # node_style_attrs = node.attrs.get("style", "")
-    # print(f"Node style: {node_style_attrs}")
-    if "label-default" in node_class_str:
-        return f"`{node.getText()}` "
-    if "glyphicon" in node_class_str and not node.parent.parent.name == "td":
-        global IS_SPEC_TAG
-        IS_SPEC_TAG = True
-        # print(f"Node {node}\n Parent {node.parent}\n")
-        if node.parent.name == "span":
-            # print(node.parent)
-            return ":::warning\n"
-        return ":::note\n"
 
-    if node.parent.parent.name == "td":
-        return "\nℹ️ " + convert_children(node)
-    # if span_block:
-    #     sp_bl_attrs = span_block.get_attribute_list("class")
-    #     print(sp_bl_attrs)
+    if "label-default" in node_class_str:
+        return f"`{node.get_text()}` "
+
+    if "glyphicon" in node_class_str:
+        # Для иконок внутри таблиц возвращаем символ
+        if node.find_parent("td"):
+            return "ℹ️ "
+        # Для остальных случаев - пустую строку (обрабатывается в convert_p)
+        return ""
+
     return f"{convert_children(node)} "
 
 
-def convert_p(node: Tag) -> str:
-    # is_spec_block = False
-    # span_block = node.find("span")
-    # if span_block:
-    #     sp_bl_attrs = span_block.get_attribute_list("class")
-    #     print(sp_bl_attrs)
+def convert_i(node: Tag) -> str:
+    # Проверяем, не содержит ли курсив специальную иконку
+    if node.find("span", class_="glyphicon-info-sign"):
+        # Если содержит - обработаем как часть admonition
+        return convert_children(node)
+    return f"*{convert_children(node).strip()}* "
 
-    # child = next(node.children)
-    # child_class_list = child.get("class", []) or []
-    # child_class_str = " ".join(child_class_list)
-    # child_name = child.name.lower() if child.name else ""
+
+def convert_p(node: Tag) -> str:
+    # Проверяем, содержит ли параграф специальную иконку
+    icon_span = node.find("span", class_="glyphicon-info-sign")
+    if icon_span:
+        # Создаем копию узла для безопасной модификации
+        p_copy = copy.copy(node)
+
+        # Удаляем иконку из копии
+        icon_span = p_copy.find("span", class_="glyphicon-info-sign")
+        if icon_span:
+            icon_span.decompose()
+
+        # Разворачиваем теги <i> сохраняя их содержимое
+        for i_tag in p_copy.find_all("i"):
+            i_tag.unwrap()
+
+        # Извлекаем текст и обрабатываем
+        content = convert_children(p_copy).strip()
+        logger.info(f"Content adm: {content}")
+        logger.info(f"Content tagp: {node.getText().strip()} ")
+        logger.info(f"Len cont: {len(content)}")
+
+        if len(content) == 0 and node.getText():
+            content = node.getText().strip()
+
+        # Определяем тип admonition (note/warning)
+        if node.find_all("span", attrs={"style": "color: red;"}):
+            return f":::warning\n{content}\n:::\n\n"
+        return f":::note\n{content}\n:::\n\n"
 
     return f"{convert_children(node)}\n\n"
 
 
 def convert_children(node):
-    global IS_SPEC_TAG
+
     output = ""
     for child in node.children:
 
@@ -198,9 +233,6 @@ def convert_children(node):
         if result is not None:
             output += result
 
-    if IS_SPEC_TAG:
-        IS_SPEC_TAG = False
-        return output + "\n:::\n\n"
     return output
 
 
@@ -247,42 +279,113 @@ def convert_list(node, level=0):
     return output + "\n"
 
 
-def convert_table(node):
-    # Собираем строки таблицы
-    rows = []
-    for tr in node.find_all("tr"):
-        cells = []
-        for cell in tr.find_all(["th", "td"]):
-            # Обрабатываем вложенное содержимое ячейки
-            cell_content = convert_children(cell).strip()
-            # Упрощаем переносы строк внутри ячеек
-            cell_content = " ".join(cell_content.split())
-            cells.append(cell_content)
-        rows.append(cells)
+# def convert_table(node):
+#     # Собираем строки таблицы
+#     rows = []
+#     for tr in node.find_all("tr"):
+#         cells = []
+#         for cell in tr.find_all(["th", "td"]):
+#             # Обрабатываем вложенное содержимое ячейки
+#             cell_content = convert_children(cell).strip()
+#             # Упрощаем переносы строк внутри ячеек
+#             cell_content = " ".join(cell_content.split())
+#             cells.append(cell_content)
+#         rows.append(cells)
 
+#     if not rows:
+#         return ""
+
+#     # Определяем количество столбцов
+#     num_columns = max(len(row) for row in rows)
+
+#     # Создаем Markdown-таблицу
+#     output = "\n\n"  # Отступ перед таблицей
+
+#     # Заголовок таблицы
+#     header = rows[0]
+#     output += "| " + " | ".join(header) + " |\n"
+
+#     # Разделитель заголовка
+#     output += "| " + " | ".join(["---"] * num_columns) + " |\n"
+
+#     # Тело таблицы
+#     for row in rows[1:]:
+#         # Дополняем строки до нужного количества столбцов
+#         padded_row = row + [""] * (num_columns - len(row))
+#         output += "| " + " | ".join(padded_row) + " |\n"
+
+#     return output + "\n"
+
+
+def convert_table(node):
+    """
+    Улучшенная версия конвертера с лучшей обработкой rowspan/colspan
+    """
+    rows = node.find_all("tr")
     if not rows:
         return ""
 
-    # Определяем количество столбцов
-    num_columns = max(len(row) for row in rows)
+    # Определяем максимальное количество столбцов
+    max_cols = 0
+    for tr in rows:
+        col_count = 0
+        for cell in tr.find_all(["th", "td"]):
+            colspan = int(cell.get("colspan", "1"))
+            col_count += colspan
+        max_cols = max(max_cols, col_count)
 
-    # Создаем Markdown-таблицу
-    output = "\n\n"  # Отступ перед таблицей
+    # Создаем таблицу
+    table_data = []
 
-    # Заголовок таблицы
-    header = rows[0]
-    output += "| " + " | ".join(header) + " |\n"
+    for row_idx, tr in enumerate(rows):
+        row_data = []
+        col_idx = 0
 
-    # Разделитель заголовка
-    output += "| " + " | ".join(["---"] * num_columns) + " |\n"
+        for cell in tr.find_all(["th", "td"]):
+            # Обрабатываем содержимое ячейки
+            cell_content = convert_children(cell).strip()
+            cell_content = " ".join(cell_content.split())
 
-    # Тело таблицы
-    for row in rows[1:]:
-        # Дополняем строки до нужного количества столбцов
-        padded_row = row + [""] * (num_columns - len(row))
-        output += "| " + " | ".join(padded_row) + " |\n"
+            # Получаем параметры объединения
+            colspan = int(cell.get("colspan", "1"))
+            rowspan = int(cell.get("rowspan", "1"))
 
-    return output + "\n"
+            # Добавляем содержимое в основную ячейку
+            row_data.append(cell_content)
+
+            # Для colspan добавляем пустые ячейки
+            for _ in range(colspan - 1):
+                row_data.append("")
+
+            # Примечание: rowspan в Markdown не поддерживается напрямую
+            # Можно добавить комментарий или обработать по-другому
+            if rowspan > 1:
+                row_data[-colspan] = f"{cell_content} (объединено {rowspan} строк)"
+
+        # Дополняем строку до максимального количества столбцов
+        while len(row_data) < max_cols:
+            row_data.append("")
+
+        table_data.append(row_data)
+
+    # Генерируем Markdown
+    if not table_data:
+        return ""
+
+    markdown_output = "\n\n"
+
+    for i, row in enumerate(table_data):
+        markdown_output += "| " + " | ".join(row) + " |\n"
+
+        # Добавляем разделитель после первой строки
+        if i == 0:
+            markdown_output += (
+                "|" + "|".join([" --- " for _ in range(max_cols)]) + "|\n"
+            )
+
+    markdown_output += "\n"
+
+    return markdown_output
 
 
 def convert_code_block(node: Tag, lang: str | None = None):
@@ -311,7 +414,7 @@ def convert_panel(node: Tag):
     heading_text = ""
     if heading:
         # Удаляем ненужные элементы из заголовка
-        for element in heading.find_all(["div, a, span"]):
+        for element in heading.find_all(["div, span"]):
             if element is not None and isinstance(element, NavigableString) != True:
                 if "mw-headline" in element.get("class", []) or element.get("id"):
                     element.decompose()
@@ -370,7 +473,7 @@ def parse_many():
 def parse_single(link: str):
     global PAGE_NAME
     PAGE_NAME = None
-    PAGE_NAME = link.split("/")[-1]
+    PAGE_NAME = sanitize_filename(link.split("/")[-1])
     headers = {
         "accept-language": "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7",
         "Content-Language": "ru",
@@ -380,9 +483,14 @@ def parse_single(link: str):
     }
     html = None
     sessions = requests.Session()
+    local_adapter = HTTPAdapter(2, 2, 3)
+    sessions.mount("urllb", local_adapter)
     with sessions as ses:
-        html = ses.get(link, headers=headers, cookies=cookies, timeout=100).content
-
+        try:
+            html = ses.get(link, headers=headers, cookies=cookies, timeout=6).content
+        except Exception as _e:
+            logger.exception(f"Error get page content: {_e}")
+            os._exit(1)
     # with open("input.html", "r", encoding="utf-8") as f:
     #     html = f.read()
     markdown = html_to_markdown(html)

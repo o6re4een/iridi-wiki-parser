@@ -1,84 +1,53 @@
-2025-07-14 15:07:40,537 Parsing https://dev.iridi.com/IRidium_studio_2019_Navigation
-2025-07-14 15:07:41,901 Название файла IRidium_studio_2019_Navigation
-2025-07-14 15:07:41,903 Already downloaded: Page1.png
-2025-07-14 15:07:41,903 Already downloaded: Popup1.png
-2025-07-14 15:07:41,905 Already downloaded: Popup5.png
-2025-07-14 15:07:41,907 Already downloaded: Popup2.png
-2025-07-14 15:07:41,908 Already downloaded: StartPage.png
-2025-07-14 15:07:41,909 Already downloaded: ShowPopup.png
-2025-07-14 15:07:41,910 Already downloaded: AlternateView.png
-2025-07-14 15:07:41,911 Already downloaded: Popup3.png
-2025-07-14 15:07:41,912 Already downloaded: SelectBackground.png
-2025-07-14 15:07:41,913 Already downloaded: Popup4.png
-2025-07-14 15:07:41,913 Already downloaded: PopupGroups1.png
-2025-07-14 15:07:41,914 Already downloaded: PopupGroups2.png
-2025-07-14 15:07:41,915 Already downloaded: HidePopupGroup.png
-2025-07-14 15:07:41,916 Already downloaded: ScreenSaver1.png
-2025-07-14 15:07:41,917 Already downloaded: ScreenSaver2.png
-2025-07-14 15:07:41,922 Успешно спарсил IRidium_studio_2019_Navigation
-2025-07-14 15:07:41,922 Parsing https://dev.iridi.com/IRidium_studio_2019_Item_States
-2025-07-14 15:07:43,088 Название файла IRidium_studio_2019_Item_States
-2025-07-14 15:07:43,089 Already downloaded: Editor_window_Object_Properties_States.png
-2025-07-14 15:07:43,090 Already downloaded: All_states.png
-2025-07-14 15:07:43,091 Already downloaded: Icon_Current_State.png
-2025-07-14 15:07:43,092 Already downloaded: Icon_Prev_State.png
-2025-07-14 15:07:43,092 Already downloaded: Icon_Next_State.png
-2025-07-14 15:07:43,092 Already downloaded: Icon_Add_State.png
-2025-07-14 15:07:43,093 Already downloaded: Icon_Delete_State.png
-2025-07-14 15:07:43,094 Already downloaded: States1.png
-2025-07-14 15:07:43,094 Already downloaded: States2.png
-2025-07-14 15:07:43,095 Already downloaded: FastPanel.png
-2025-07-14 15:07:43,096 Already downloaded: States4.png
-2025-07-14 15:07:43,099 Already downloaded: Editor_SetupStates_Image.png
-2025-07-14 15:07:43,101 Already downloaded: Editor_SetupStates_Icon.png
-2025-07-14 15:07:43,102 Already downloaded: Editor_Chameleon_Image.png
-2025-07-14 15:07:43,102 Already downloaded: Studio2019_SetupStates_Chameleon.png
-2025-07-14 15:07:43,103 Already downloaded: Editor_SetupStates_IPCam.png
-2025-07-14 15:07:43,104 Already downloaded: TextEditor1.png
-2025-07-14 15:07:43,105 Already downloaded: Studio2019_SetupStates_Fill.png
-2025-07-14 15:07:43,106 Already downloaded: Studio2019_SetupStates_Border.png
-2025-07-14 15:07:43,109 Успешно спарсил IRidium_studio_2019_Item_States
-2025-07-14 15:07:43,109 Parsing https://dev.iridi.com/IRidium_studio_2019_Programming
-2025-07-14 15:07:44,322 Название файла IRidium_studio_2019_Programming
-2025-07-14 15:07:44,322 Already downloaded: Programming1.png
-2025-07-14 15:07:44,325 Already downloaded: Programming2.png
-2025-07-14 15:07:44,325 Already downloaded: Programming03.png
-2025-07-14 15:07:44,328 Already downloaded: Studio2019_Contextual_click_throughs01.png
-2025-07-14 15:07:44,330 Already downloaded: Programming3.png
-2025-07-14 15:07:44,330 Already downloaded: Programming_04.png
-2025-07-14 15:07:44,333 Успешно спарсил IRidium_studio_2019_Programming
-2025-07-14 15:07:44,334 Parsing https://dev.iridi.com/IRidium_studio_2019_UI_Relations
-2025-07-14 15:07:45,459 Название файла IRidium_studio_2019_UI_Relations
-2025-07-14 15:07:45,460 Already downloaded: Studio2019_Drivers_Relations_Structure.png
-2025-07-14 15:07:45,461 Already downloaded: Studio2019_Drivers_Relations_Sample.png
-2025-07-14 15:07:45,462 Already downloaded: Studio2019_Drivers_Relations_AllRelationsWindow.png
-2025-07-14 15:07:45,465 Успешно спарсил IRidium_studio_2019_UI_Relations
-2025-07-14 15:07:45,465 Parsing https://dev.iridi.com/IRidium_studio_2019_Animation
-2025-07-14 15:07:46,583 Название файла IRidium_studio_2019_Animation
-2025-07-14 15:07:46,584 Already downloaded: Studio2019_Animation_PopupEffect.png
-2025-07-14 15:07:46,585 Already downloaded: Studio2019_Animation_statesChange.png
-2025-07-14 15:07:46,586 Already downloaded: MB5.gif
-2025-07-14 15:07:46,586 Already downloaded: MB4.gif
-2025-07-14 15:07:46,587 Already downloaded: MB3.gif
-2025-07-14 15:07:46,587 Already downloaded: MB2.gif
-2025-07-14 15:07:46,589 Already downloaded: Studio2019_Animation_ms_settings.png
-2025-07-14 15:07:46,589 Already downloaded: FastEffect.png
-2025-07-14 15:07:46,590 Already downloaded: FastEffect2.png
-2025-07-14 15:07:46,595 Успешно спарсил IRidium_studio_2019_Animation
-2025-07-14 15:07:46,595 Parsing https://dev.iridi.com/IRidium_studio_2019_Lists
-2025-07-14 15:07:47,743 Название файла IRidium_studio_2019_Lists
-2025-07-14 15:07:47,744 Already downloaded: Static_List2.png
-2025-07-14 15:07:47,746 Already downloaded: List1.png
-2025-07-14 15:07:47,747 Already downloaded: AdvancedList1.png
-2025-07-14 15:07:47,748 Already downloaded: Template1.png
-2025-07-14 15:07:47,749 Already downloaded: Template2.png
-2025-07-14 15:07:47,749 Already downloaded: Template3.png
-2025-07-14 15:07:47,750 Already downloaded: Studio2019_AdvancedList_Sample.png
-2025-07-14 15:07:48,319 file_name: Looped_list.png
-2025-07-14 15:07:48,327 Успешно спарсил IRidium_studio_2019_Lists
-2025-07-14 15:07:48,328 Parsing https://dev.iridi.com/IRidium_studio_2019_Sounds
-2025-07-14 15:07:49,441 Название файла IRidium_studio_2019_Sounds
-2025-07-14 15:07:50,194 file_name: Studio2019_Sound_macro.png
-2025-07-14 15:07:50,956 file_name: Studio2019_Vibro_macro.png
-2025-07-14 15:07:51,671 file_name: Studio2019_IPCam_audio.png
-2025-07-14 15:07:51,680 Успешно спарсил IRidium_studio_2019_Sounds
+2025-07-16 15:29:50,156 Parsing https://dev.iridi.com/IRidium_studio_2019_Import_Data
+2025-07-16 15:29:56,162 Error get page content: HTTPSConnectionPool(host='dev.iridi.com', port=443): Max retries exceeded with url: /IRidium_studio_2019_Import_Data (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x00000178C5D6F130>, 'Connection to dev.iridi.com timed out. (connect timeout=6)'))
+Traceback (most recent call last):
+  File "C:\iridi\parser\.venv\lib\site-packages\urllib3\connection.py", line 198, in _new_conn
+    sock = connection.create_connection(
+  File "C:\iridi\parser\.venv\lib\site-packages\urllib3\util\connection.py", line 85, in create_connection
+    raise err
+  File "C:\iridi\parser\.venv\lib\site-packages\urllib3\util\connection.py", line 73, in create_connection
+    sock.connect(sa)
+TimeoutError: timed out
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\iridi\parser\.venv\lib\site-packages\urllib3\connectionpool.py", line 787, in urlopen
+    response = self._make_request(
+  File "C:\iridi\parser\.venv\lib\site-packages\urllib3\connectionpool.py", line 488, in _make_request
+    raise new_e
+  File "C:\iridi\parser\.venv\lib\site-packages\urllib3\connectionpool.py", line 464, in _make_request
+    self._validate_conn(conn)
+  File "C:\iridi\parser\.venv\lib\site-packages\urllib3\connectionpool.py", line 1093, in _validate_conn
+    conn.connect()
+  File "C:\iridi\parser\.venv\lib\site-packages\urllib3\connection.py", line 753, in connect
+    self.sock = sock = self._new_conn()
+  File "C:\iridi\parser\.venv\lib\site-packages\urllib3\connection.py", line 207, in _new_conn
+    raise ConnectTimeoutError(
+urllib3.exceptions.ConnectTimeoutError: (<urllib3.connection.HTTPSConnection object at 0x00000178C5D6F130>, 'Connection to dev.iridi.com timed out. (connect timeout=6)')
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\iridi\parser\.venv\lib\site-packages\requests\adapters.py", line 667, in send
+    resp = conn.urlopen(
+  File "C:\iridi\parser\.venv\lib\site-packages\urllib3\connectionpool.py", line 841, in urlopen
+    retries = retries.increment(
+  File "C:\iridi\parser\.venv\lib\site-packages\urllib3\util\retry.py", line 519, in increment
+    raise MaxRetryError(_pool, url, reason) from reason  # type: ignore[arg-type]
+urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='dev.iridi.com', port=443): Max retries exceeded with url: /IRidium_studio_2019_Import_Data (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x00000178C5D6F130>, 'Connection to dev.iridi.com timed out. (connect timeout=6)'))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "c:\iridi\parser\parser.py", line 490, in parse_single
+    html = ses.get(link, headers=headers, cookies=cookies, timeout=6).content
+  File "C:\iridi\parser\.venv\lib\site-packages\requests\sessions.py", line 602, in get
+    return self.request("GET", url, **kwargs)
+  File "C:\iridi\parser\.venv\lib\site-packages\requests\sessions.py", line 589, in request
+    resp = self.send(prep, **send_kwargs)
+  File "C:\iridi\parser\.venv\lib\site-packages\requests\sessions.py", line 703, in send
+    r = adapter.send(request, **kwargs)
+  File "C:\iridi\parser\.venv\lib\site-packages\requests\adapters.py", line 688, in send
+    raise ConnectTimeout(e, request=request)
+requests.exceptions.ConnectTimeout: HTTPSConnectionPool(host='dev.iridi.com', port=443): Max retries exceeded with url: /IRidium_studio_2019_Import_Data (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x00000178C5D6F130>, 'Connection to dev.iridi.com timed out. (connect timeout=6)'))

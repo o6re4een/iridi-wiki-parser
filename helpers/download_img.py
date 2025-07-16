@@ -1,5 +1,6 @@
 import logging
 import os
+import time
 
 import requests
 
@@ -42,6 +43,7 @@ def download_img(img_src: str, page_name: str) -> str:
             # Сохраниние в локальный проект docusaurus
             with open(docus_save_path_file, "wb") as f:
                 f.write(img.content)
+            time.sleep(0.4)
 
             return f"![{123}]({DOCUS_IMAGE_BASE_PATH+page_name+'/'+file_name})\n\n"
     return "Image Error"
