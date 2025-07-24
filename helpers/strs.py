@@ -10,7 +10,7 @@ def escape_markdown(text):
     Избирательно экранирует специальные символы Markdown, сохраняя разметку
     """
     # Символы, которые могут начинать Markdown-конструкции
-    start_chars = r"*_-#+>`[~"
+    start_chars = r"*_-#+>`[~<"
 
     # Экранируем только если символ:
     # 1. В начале строки
@@ -127,6 +127,96 @@ def clean_pp_limit(text: str):
     return text
 
 
-# def clear_admonitions(page_text: str) -> str:
-#     first_repl = re.sub("\W")
-#     return first_repl
+def postprocess_text(text):
+    """
+    Убирает артефакты форматирования после конвертации:
+    - Лишние пробелы внутри скобок: ( Type ) -> (Type)
+    - Лишние пробелы перед точками: Type . -> Type.
+    - Другие частые случаи с пробелами вокруг пунктуации
+    """
+    # Убираем пробелы внутри скобок
+    text = re.sub(r"\(\s+", "(", text)
+    text = re.sub(r"\s+\)", ")", text)
+
+    # Убираем пробелы перед точками, запятыми и другими знаками препинания
+    text = re.sub(r"\s+([.,;?])", r"\1", text)
+    text = re.sub(r" :{1}", ":", text)
+
+    # Убираем пробелы после открывающих кавычек и перед закрывающими
+    # text = re.sub(r'["]\s+', r"\1", text)
+    # text = re.sub(r'\s+["]', r"\1", text)
+
+    # Исправляем специфические случаи с admonition
+    text = re.sub(r'[".]:::', "\n:::", text)
+    text = re.sub(r"(\w+):::", r"\1\n:::", text)
+    text = re.sub(r"[>]:::", ">\n:::", text)
+    # text = re.sub(r"\\*:::", ":::", text)
+    # text = re.sub(r"\\*\(", "(", text)
+    # text = re.sub(r"\\*\)", ")", text)
+
+    # Убираем пробелы в конце строк перед знаками препинания
+    # text = re.sub(r"\s+\n([.,:;!?])", r"\1\n", text)
+
+    # Исправляем артефакты вокруг ссылок
+    text = re.sub(r"\(\s+", "(", text)
+    text = re.sub(r"\s+\)", ")", text)
+    # text = clear_admonitions(text)
+    return text
+
+
+# def postprocess_text(text):
+#     """
+#     Убирает артефакты форматирования после конвертации с защитой admonitions
+#     """
+#     # Защищаем блоки admonitions перед обработкой
+#     protected_blocks = []
+
+#     def protect_admonitions(match):
+#         protected_blocks.append(match.group(0))
+#         return f"__PROTECTED_ADMONITION_{len(protected_blocks)-1}__"
+
+#     # Находим и "защищаем" все блоки admonitions
+#     text = re.sub(
+#         r"(?:::+)[^\n]*(?:\n(?!:::).*)*\n:::+",
+#         protect_admonitions,
+#         text,
+#         flags=re.DOTALL,
+#     )
+
+#     # Основные замены
+#     # Убираем пробелы внутри скобок
+#     text = re.sub(r"\(\s+", "(", text)
+#     text = re.sub(r"\s+\)", ")", text)
+
+#     # Убираем пробелы перед точками, запятыми и другими знаками препинания
+#     # Исключаем случаи, где знак препинания является частью admonition
+#     text = re.sub(r"\s+([.,;?])", r"\1", text)
+
+#     # Убираем пробелы в конце строк перед знаками препинания
+#     # text = re.sub(r"\s+\n([.,:;!?])", r"\1\n", text)
+
+#     # Исправляем артефакты вокруг ссылок
+#     text = re.sub(r"\(\s+", "(", text)
+#     text = re.sub(r"\s+\)", ")", text)
+
+#     # Восстанавливаем защищенные блоки admonitions
+#     def restore_admonitions(match):
+#         idx = int(match.group(1))
+#         return protected_blocks[idx] if idx < len(protected_blocks) else ""
+
+#     text = re.sub(r"__PROTECTED_ADMONITION_(\d+)__", restore_admonitions, text)
+
+#     # Гарантируем разделение блоков admonitions пустой строкой
+#     text = re.sub(r"(:::[^\n]*\n(?:[^:]*|:[^:])*?)\n(:::[^\n]*\n)", r"\1\n\n\2", text)
+
+#     # Фиксим склеенные admonitions
+#     text = re.sub(r":{5,}", ":::", text)
+
+#     return text
+
+
+def clear_admonitions(page_text: str) -> str:
+    res = page_text
+    if page_text.find("::::"):
+        res = page_text.replace("::::", ":::\n\n:")
+    return res

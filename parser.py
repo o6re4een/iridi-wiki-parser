@@ -12,15 +12,21 @@ from helpers.download_img import download_img
 from helpers.CONSTANTS import SAVE_DIR_PATH, SOURCE_URL, DOCUS_IMAGE_BASE_PATH
 from helpers.strs import (
     clean_pp_limit,
+    postprocess_text,
     replace_multiple_newlines,
     escape_markdown,
     sanitize_filename,
 )
+from html_table_parse import fix_links_in_element
 
 
 FORMAT = "%(asctime)s %(message)s"
 logging.basicConfig(
-    format=FORMAT, filename="logs.log", level="INFO", encoding="utf-8", filemode="w"
+    format=FORMAT,
+    level="INFO",
+    encoding="utf-8",
+    # filename="logs.log",
+    #   filemode="w"
 )
 
 logger = logging.getLogger(__name__)
@@ -85,7 +91,10 @@ def convert_node(node):
     # Обработка параграфов
     # Обработка прорывов строк
     if node_name == "br":
-        return "\n\n"
+
+        if node.find_parent(name="table"):
+            return convert_children(node) + "<br/> "
+        return convert_children(node) + "\n\n"
 
     if node_name == "p":
         return convert_p(node)
@@ -109,7 +118,18 @@ def convert_node(node):
         return download_img(src, PAGE_NAME)
 
     # Обработка таблиц
+    # if node_name == "div" and "table-responsive" in class_str:
+    #     logger.info(f"Found tag: table")
+    if node_name == "div" and "table-responsive" in class_list:
+        return convert_resp_table(node)
+
     if node_name == "table":
+        parent = node.find_parent("div", class_="table-responsive")
+
+        if parent:
+            logger.info("TABLE found")
+            return convert_resp_table(parent)
+
         return convert_table(node)
 
     # Обработка блоков кода
@@ -146,7 +166,7 @@ def convert_node(node):
         else:
             link = SOURCE_URL + href
         text = convert_children(node).strip()
-        return f"[{text}]({link})"
+        return f"[{text}]({link}) "
 
     if node_name == "span":
         return convert_span(node)
@@ -154,16 +174,24 @@ def convert_node(node):
     if "breadcrumb" in class_str:
         return ""
 
-    # if node_name == "span" and "glyphicon" in class_str:
-    #     print(f"Node: {node_name} \n Class: {class_str}, NODE {node}")
-    #     if "glyphicon-info-sign" in class_str:
-    #         return "ℹ️ "
-    #     if "glyphicon-download" in class_str:
-    #         return "⭳ "
-    #     return ""
-
     # Рекурсивная обработка дочерних элементов
     return convert_children(node)
+
+
+def convert_resp_table(node: Tag):
+    logger.info("converting table")
+
+    res = ""
+
+    # Фиксируем ссылки в таблице
+    fix_links_in_element(node, PAGE_NAME)
+    # Сохраняем обертку и таблицу как HTML
+    res += '<div class="table-responsive">'
+    res += str(node)
+    res += "</div>"
+    res += ""
+    logger.info("Table responsive")
+    return res
 
 
 def convert_span(node: Tag) -> str:
@@ -209,18 +237,22 @@ def convert_p(node: Tag) -> str:
 
         # Извлекаем текст и обрабатываем
         content = convert_children(p_copy).strip()
-        logger.info(f"Content adm: {content}")
-        logger.info(f"Content tagp: {node.getText().strip()} ")
-        logger.info(f"Len cont: {len(content)}")
+        # logger.info(f"Content adm: {content}")
+        # logger.info(f"Content tagp: {node.getText().strip()} ")
+        # logger.info(f"Len cont: {len(content)}")
 
         if len(content) == 0 and node.getText():
             content = node.getText().strip()
 
+        if node.find_parent("td"):
+            return f"ℹ️ {content}"
+        span_danger = node.find("span", attrs={"style": "color: red;"}, recursive=True)
         # Определяем тип admonition (note/warning)
-        if node.find_all("span", attrs={"style": "color: red;"}):
-            return f":::warning\n{content}\n:::\n\n"
-        return f":::note\n{content}\n:::\n\n"
+        if span_danger:
+            return f"\n:::danger[{span_danger.getText().strip()}]\n{content}\n:::\n\n"
+        return f"\n:::note\n{content}\n:::\n\n"
 
+    # logger.info(f"Converting p tag: \n {convert_children(node)}")
     return f"{convert_children(node)}\n\n"
 
 
@@ -317,13 +349,65 @@ def convert_list(node, level=0):
 #     return output + "\n"
 
 
-def convert_table(node):
-    """
-    Улучшенная версия конвертера с лучшей обработкой rowspan/colspan
-    """
+# def convert_table(node):
+#     """
+#     Улучшенная версия конвертера с лучшей обработкой rowspan/colspan
+#     """
+
+
+def convert_table_to_html(node):
+    """Конвертирует сложные таблицы с объединенными ячейками в HTML"""
     rows = node.find_all("tr")
     if not rows:
         return ""
+
+    # Определяем количество столбцов
+    max_cols = 0
+    for tr in rows:
+        col_count = 0
+        for cell in tr.find_all(["th", "td"]):
+            colspan = int(cell.get("colspan", "1"))
+            col_count += colspan
+        max_cols = max(max_cols, col_count)
+
+    # Создаем HTML-таблицу
+    output = "\n\n<table>\n"
+
+    for tr in rows:
+        output += "  <tr>\n"
+        for cell in tr.find_all(["th", "td"]):
+            # Получаем параметры ячейки
+            tag = "th" if cell.name == "th" else "td"
+            colspan = f' colspan="{cell.get("colspan")}"' if cell.get("colspan") else ""
+            rowspan = f' rowspan="{cell.get("rowspan")}"' if cell.get("rowspan") else ""
+            style = f' style="{cell.get("style")}"' if cell.get("style") else ""
+
+            # Конвертируем содержимое
+            cell_content = convert_children(cell).strip()
+
+            output += f"    <{tag}{colspan}{rowspan}{style}>{cell_content}</{tag}>\n"
+        output += "  </tr>\n"
+
+    output += "</table>\n\n"
+    return output
+
+
+def convert_table(node):
+    rows = node.find_all("tr")
+    if not rows:
+        return ""
+
+    has_complex_cells = False
+    for tr in rows:
+        for cell in tr.find_all(["th", "td"]):
+            if int(cell.get("rowspan", "1")) > 1 or int(cell.get("colspan", "1")) > 1:
+                has_complex_cells = True
+                break
+        if has_complex_cells:
+            break
+
+    if has_complex_cells:
+        return convert_table_to_html(node)
 
     # Определяем максимальное количество столбцов
     max_cols = 0
@@ -334,58 +418,82 @@ def convert_table(node):
             col_count += colspan
         max_cols = max(max_cols, col_count)
 
-    # Создаем таблицу
-    table_data = []
+    # Создаем матрицу для представления таблицы
+    table_matrix = []
+    for _ in range(len(rows)):
+        table_matrix.append([None] * max_cols)
 
-    for row_idx, tr in enumerate(rows):
-        row_data = []
+    # Заполняем матрицу данными
+    row_idx = 0
+    rowspans = {}  # Текущие активные rowspan
+
+    for tr in rows:
         col_idx = 0
 
-        for cell in tr.find_all(["th", "td"]):
-            # Обрабатываем содержимое ячейки
-            cell_content = convert_children(cell).strip()
-            cell_content = " ".join(cell_content.split())
+        # Обрабатываем активные rowspans
+        for c in range(max_cols):
+            if rowspans.get(c, 0) > 0:
+                rowspans[c] -= 1
+                if rowspans[c] == 0:
+                    del rowspans[c]
+                # Пропускаем ячейку, занятую rowspan
+                col_idx += 1
+                continue
+            if table_matrix[row_idx][c] is not None:
+                col_idx += 1
 
-            # Получаем параметры объединения
+        # Обрабатываем ячейки текущей строки
+        for cell in tr.find_all(["th", "td"]):
+            # Пропускаем занятые ячейки
+            while col_idx < max_cols and table_matrix[row_idx][col_idx] is not None:
+                col_idx += 1
+            if col_idx >= max_cols:
+                break
+
+            # Получаем параметры ячейки
             colspan = int(cell.get("colspan", "1"))
             rowspan = int(cell.get("rowspan", "1"))
 
-            # Добавляем содержимое в основную ячейку
-            row_data.append(cell_content)
+            # Обрабатываем содержимое
+            cell_content = convert_children(cell).strip()
+            cell_content = " ".join(cell_content.split())
 
-            # Для colspan добавляем пустые ячейки
-            for _ in range(colspan - 1):
-                row_data.append("")
+            # Записываем содержимое в основную ячейку
+            table_matrix[row_idx][col_idx] = cell_content
 
-            # Примечание: rowspan в Markdown не поддерживается напрямую
-            # Можно добавить комментарий или обработать по-другому
+            # Помечаем объединенные ячейки
+            for r in range(rowspan):
+                for c in range(colspan):
+                    if r == 0 and c == 0:
+                        continue  # Основная ячейка уже заполнена
+                    if row_idx + r < len(table_matrix) and col_idx + c < max_cols:
+                        table_matrix[row_idx + r][col_idx + c] = ""
+
+            # Сохраняем rowspan для следующих строк
             if rowspan > 1:
-                row_data[-colspan] = f"{cell_content} (объединено {rowspan} строк)"
+                rowspans[col_idx] = rowspan - 1
 
-        # Дополняем строку до максимального количества столбцов
-        while len(row_data) < max_cols:
-            row_data.append("")
+            col_idx += colspan
 
-        table_data.append(row_data)
+        row_idx += 1
 
-    # Генерируем Markdown
-    if not table_data:
-        return ""
+    # Генерируем Markdown таблицу
+    output = "\n\n"
 
-    markdown_output = "\n\n"
+    # Заголовок таблицы
+    header = table_matrix[0]
+    output += "| " + " | ".join(header) + " |\n"
 
-    for i, row in enumerate(table_data):
-        markdown_output += "| " + " | ".join(row) + " |\n"
+    # Разделитель
+    output += "| " + " | ".join(["---"] * max_cols) + " |\n"
 
-        # Добавляем разделитель после первой строки
-        if i == 0:
-            markdown_output += (
-                "|" + "|".join([" --- " for _ in range(max_cols)]) + "|\n"
-            )
+    # Тело таблицы
+    for row in table_matrix[1:]:
+        # Заменяем None на пустые строки
+        row_data = [cell if cell is not None else "" for cell in row]
+        output += "| " + " | ".join(row_data) + " |\n"
 
-    markdown_output += "\n"
-
-    return markdown_output
+    return output + "\n"
 
 
 def convert_code_block(node: Tag, lang: str | None = None):
@@ -438,7 +546,13 @@ def convert_panel(node: Tag):
 
 
 def convert_alert(node: Tag):
-    md_text = ":::tip\n"
+    node_local_cls = node.get("class", []) or []
+    node_local_clr_str = " ".join(node_local_cls)
+
+    if "alert-warning" in node_local_clr_str:
+        return f"\n:::warning[Внимание]\n{convert_children(node).strip()}\n:::\n"
+
+    md_text = "\n:::info[Информация]\n"
     md_text += convert_children(node)
     # for child in node.children:
     #     if isinstance(child, NavigableString):
@@ -495,6 +609,7 @@ def parse_single(link: str):
     #     html = f.read()
     markdown = html_to_markdown(html)
     final = clean_pp_limit(replace_multiple_newlines(markdown))
+    final = postprocess_text(final)
     if PAGE_NAME:
         os.makedirs(f"{SAVE_DIR_PATH}{PAGE_NAME}", exist_ok=True)
         with open(f"{SAVE_DIR_PATH}{PAGE_NAME}/output.md", "w", encoding="utf-8") as f:
@@ -503,7 +618,9 @@ def parse_single(link: str):
         os.makedirs(f"my-website/docs/{PAGE_NAME}", exist_ok=True)
         with open(f"my-website/docs/{PAGE_NAME}/index.md", "w", encoding="utf-8") as f:
             f.write(final)
-        logger.info(f"Успешно спарсил {PAGE_NAME}")
+        logger.info(
+            f"Успешно спарсил {PAGE_NAME}\n------------------------------------------------------------------------"
+        )
     else:
         logger.error(f"Error not found page name {link}")
 

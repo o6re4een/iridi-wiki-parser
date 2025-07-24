@@ -1,53 +1,26 @@
-2025-07-16 15:29:50,156 Parsing https://dev.iridi.com/IRidium_studio_2019_Import_Data
-2025-07-16 15:29:56,162 Error get page content: HTTPSConnectionPool(host='dev.iridi.com', port=443): Max retries exceeded with url: /IRidium_studio_2019_Import_Data (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x00000178C5D6F130>, 'Connection to dev.iridi.com timed out. (connect timeout=6)'))
-Traceback (most recent call last):
-  File "C:\iridi\parser\.venv\lib\site-packages\urllib3\connection.py", line 198, in _new_conn
-    sock = connection.create_connection(
-  File "C:\iridi\parser\.venv\lib\site-packages\urllib3\util\connection.py", line 85, in create_connection
-    raise err
-  File "C:\iridi\parser\.venv\lib\site-packages\urllib3\util\connection.py", line 73, in create_connection
-    sock.connect(sa)
-TimeoutError: timed out
-
-The above exception was the direct cause of the following exception:
-
-Traceback (most recent call last):
-  File "C:\iridi\parser\.venv\lib\site-packages\urllib3\connectionpool.py", line 787, in urlopen
-    response = self._make_request(
-  File "C:\iridi\parser\.venv\lib\site-packages\urllib3\connectionpool.py", line 488, in _make_request
-    raise new_e
-  File "C:\iridi\parser\.venv\lib\site-packages\urllib3\connectionpool.py", line 464, in _make_request
-    self._validate_conn(conn)
-  File "C:\iridi\parser\.venv\lib\site-packages\urllib3\connectionpool.py", line 1093, in _validate_conn
-    conn.connect()
-  File "C:\iridi\parser\.venv\lib\site-packages\urllib3\connection.py", line 753, in connect
-    self.sock = sock = self._new_conn()
-  File "C:\iridi\parser\.venv\lib\site-packages\urllib3\connection.py", line 207, in _new_conn
-    raise ConnectTimeoutError(
-urllib3.exceptions.ConnectTimeoutError: (<urllib3.connection.HTTPSConnection object at 0x00000178C5D6F130>, 'Connection to dev.iridi.com timed out. (connect timeout=6)')
-
-The above exception was the direct cause of the following exception:
-
-Traceback (most recent call last):
-  File "C:\iridi\parser\.venv\lib\site-packages\requests\adapters.py", line 667, in send
-    resp = conn.urlopen(
-  File "C:\iridi\parser\.venv\lib\site-packages\urllib3\connectionpool.py", line 841, in urlopen
-    retries = retries.increment(
-  File "C:\iridi\parser\.venv\lib\site-packages\urllib3\util\retry.py", line 519, in increment
-    raise MaxRetryError(_pool, url, reason) from reason  # type: ignore[arg-type]
-urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='dev.iridi.com', port=443): Max retries exceeded with url: /IRidium_studio_2019_Import_Data (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x00000178C5D6F130>, 'Connection to dev.iridi.com timed out. (connect timeout=6)'))
-
-During handling of the above exception, another exception occurred:
-
-Traceback (most recent call last):
-  File "c:\iridi\parser\parser.py", line 490, in parse_single
-    html = ses.get(link, headers=headers, cookies=cookies, timeout=6).content
-  File "C:\iridi\parser\.venv\lib\site-packages\requests\sessions.py", line 602, in get
-    return self.request("GET", url, **kwargs)
-  File "C:\iridi\parser\.venv\lib\site-packages\requests\sessions.py", line 589, in request
-    resp = self.send(prep, **send_kwargs)
-  File "C:\iridi\parser\.venv\lib\site-packages\requests\sessions.py", line 703, in send
-    r = adapter.send(request, **kwargs)
-  File "C:\iridi\parser\.venv\lib\site-packages\requests\adapters.py", line 688, in send
-    raise ConnectTimeout(e, request=request)
-requests.exceptions.ConnectTimeout: HTTPSConnectionPool(host='dev.iridi.com', port=443): Max retries exceeded with url: /IRidium_studio_2019_Import_Data (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x00000178C5D6F130>, 'Connection to dev.iridi.com timed out. (connect timeout=6)'))
+2025-07-21 11:57:40,281 Parsing https://dev.iridi.com/Basics_of_working_with_Bus77_Home
+2025-07-21 11:57:41,426 file_name: Bus77_Home_Settings_iOS%28ru%29.jpg
+2025-07-21 11:57:42,084 file_name: Bus77_Home_Settings_Andriod%28ru%29.jpg
+2025-07-21 11:57:42,608 file_name: Bus77_Home1.png
+2025-07-21 11:57:43,151 file_name: I3KNX_Registration2.png
+2025-07-21 11:57:43,698 file_name: Bus77_Home2.png
+2025-07-21 11:57:44,237 file_name: Bus77_Home3.png
+2025-07-21 11:57:44,791 file_name: Bus77_Home4.png
+2025-07-21 11:57:45,362 file_name: Bus77_Home5.png
+2025-07-21 11:57:45,970 file_name: Bus77_Home6.png
+2025-07-21 11:57:46,533 file_name: IP_Hub3.png
+2025-07-21 11:57:47,090 file_name: Bus77_Basics2.png
+2025-07-21 11:57:47,679 file_name: Bus77_Basics3.png
+2025-07-21 11:57:48,233 file_name: Bus77_Basics4.png
+2025-07-21 11:57:48,800 file_name: Bus77_Basics5.png
+2025-07-21 11:57:49,348 file_name: Bus77_Basics6.png
+2025-07-21 11:57:49,905 file_name: Bus77_Basics7.png
+2025-07-21 11:57:50,500 file_name: Bus77_Basics10.png
+2025-07-21 11:57:51,091 file_name: Bus77_Basics9.png
+2025-07-21 11:57:51,814 file_name: Bus77_Basics11.png
+2025-07-21 11:57:52,670 file_name: Bus77_Home12.png
+2025-07-21 11:57:53,412 file_name: Bus77_Home9.png
+2025-07-21 11:57:53,993 file_name: Bus77_Home10.png
+2025-07-21 11:57:54,595 file_name: Bus77_Home11.png
+2025-07-21 11:57:55,010 Успешно спарсил Basics_of_working_with_Bus77_Home
+------------------------------------------------------------------------
